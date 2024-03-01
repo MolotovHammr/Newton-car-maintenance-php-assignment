@@ -1,0 +1,4 @@
+name: newton-car-maintainance-php-assignment
+recipe: symfony
+config:
+  webroot: public
