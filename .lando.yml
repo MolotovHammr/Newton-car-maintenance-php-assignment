@@ -1,4 +1,7 @@
 name: newton-car-maintainance-php-assignment
 recipe: symfony
 config:
+  php: '8.2'
   webroot: public
+  via: apache
+  database: mysql
