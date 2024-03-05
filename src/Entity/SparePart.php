@@ -27,10 +27,14 @@ class SparePart
     #[ORM\ManyToMany(targetEntity: Brand::class, inversedBy: 'spareParts')]
     private Collection $brands;
 
+    #[ORM\ManyToMany(targetEntity: MaintenanceJob::class, mappedBy: 'spareParts')]
+    private Collection $maintenanceJobs;
+
     public function __construct()
     {
         $this->models = new ArrayCollection();
         $this->brands = new ArrayCollection();
+        $this->maintenanceJobs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -106,6 +110,33 @@ class SparePart
     public function removeBrand(Brand $brand): static
     {
         $this->brands->removeElement($brand);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MaintenanceJob>
+     */
+    public function getMaintenanceJobs(): Collection
+    {
+        return $this->maintenanceJobs;
+    }
+
+    public function addMaintenanceJob(MaintenanceJob $maintenanceJob): static
+    {
+        if (!$this->maintenanceJobs->contains($maintenanceJob)) {
+            $this->maintenanceJobs->add($maintenanceJob);
+            $maintenanceJob->addSparePart($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMaintenanceJob(MaintenanceJob $maintenanceJob): static
+    {
+        if ($this->maintenanceJobs->removeElement($maintenanceJob)) {
+            $maintenanceJob->removeSparePart($this);
+        }
 
         return $this;
     }

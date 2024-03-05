@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ScheduledMaintenanceJob index
+{% endblock %}
+
+{% block body %}
+	<h1>Scheduled Maintenance Jobs</h1>
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Id</th>
+				<th>Maintenance job</th>
+				<th>Customer</th>
+				<th>Car model</th>
+				<th>Year</th>
+				<th>Price</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for scheduled_maintenance_job in scheduled_maintenance_jobs %}
+				<tr>
+					<td>{{ scheduled_maintenance_job.id }}</td>
+					<td>{{ scheduled_maintenance_job.maintenanceJob.name }}</td>
+					<td>{{ scheduled_maintenance_job.car.customer.name }}</td>
+					<td>{{ scheduled_maintenance_job.car.getCarFullName }}</td>
+					<td>{{ scheduled_maintenance_job.car.model.year }}</td>
+					<td>Price Placeholder</td>
+					<td>
+						<a href="{{ path('app_scheduled_maintenance_job_show', {'id': scheduled_maintenance_job.id}) }}">show</a>
+					</td>
+				</tr>
+			{% else %}
+				<tr>
+					<td colspan="2">no records found</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	<a href="{{ path('app_scheduled_maintenance_job_new') }}">Create new</a>
+{% endblock %}
