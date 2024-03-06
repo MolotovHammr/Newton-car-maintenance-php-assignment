@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ScheduledMaintenanceJobRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ScheduledMaintenanceJobRepository::class)]
@@ -17,6 +18,7 @@ class ScheduledMaintenanceJob
 
     #[ORM\ManyToOne(inversedBy: 'scheduledMaintenanceJobs')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotBlank]
     private ?MaintenanceJob $maintenanceJob = null;
 
     #[ORM\ManyToOne(inversedBy: 'scheduledMaintenanceJobs')]

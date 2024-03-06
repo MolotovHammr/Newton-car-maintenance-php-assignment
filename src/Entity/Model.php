@@ -31,10 +31,14 @@ class Model
     #[ORM\OneToMany(targetEntity: Car::class, mappedBy: 'model')]
     private Collection $cars;
 
+    #[ORM\OneToMany(targetEntity: MaintenanceJob::class, mappedBy: 'model')]
+    private Collection $maintenanceJobs;
+
     public function __construct()
     {
         $this->spareParts = new ArrayCollection();
         $this->cars = new ArrayCollection();
+        $this->maintenanceJobs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -129,6 +133,36 @@ class Model
             // set the owning side to null (unless already changed)
             if ($car->getModel() === $this) {
                 $car->setModel(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MaintenanceJob>
+     */
+    public function getMaintenanceJobs(): Collection
+    {
+        return $this->maintenanceJobs;
+    }
+
+    public function addMaintenanceJob(MaintenanceJob $maintenanceJob): static
+    {
+        if (!$this->maintenanceJobs->contains($maintenanceJob)) {
+            $this->maintenanceJobs->add($maintenanceJob);
+            $maintenanceJob->setModel($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMaintenanceJob(MaintenanceJob $maintenanceJob): static
+    {
+        if ($this->maintenanceJobs->removeElement($maintenanceJob)) {
+            // set the owning side to null (unless already changed)
+            if ($maintenanceJob->getModel() === $this) {
+                $maintenanceJob->setModel(null);
             }
         }
 

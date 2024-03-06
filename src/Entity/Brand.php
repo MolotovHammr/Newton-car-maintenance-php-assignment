@@ -27,10 +27,14 @@ class Brand
     #[ORM\ManyToMany(targetEntity: SparePart::class, mappedBy: 'brands')]
     private Collection $spareParts;
 
+    #[ORM\OneToMany(targetEntity: MaintenanceJob::class, mappedBy: 'brand')]
+    private Collection $maintenanceJobs;
+
     public function __construct()
     {
         $this->models = new ArrayCollection();
         $this->spareParts = new ArrayCollection();
+        $this->maintenanceJobs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -114,6 +118,36 @@ class Brand
     {
         if ($this->spareParts->removeElement($sparePart)) {
             $sparePart->removeBrand($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MaintenanceJob>
+     */
+    public function getMaintenanceJobs(): Collection
+    {
+        return $this->maintenanceJobs;
+    }
+
+    public function addMaintenanceJob(MaintenanceJob $maintenanceJob): static
+    {
+        if (!$this->maintenanceJobs->contains($maintenanceJob)) {
+            $this->maintenanceJobs->add($maintenanceJob);
+            $maintenanceJob->setBrand($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMaintenanceJob(MaintenanceJob $maintenanceJob): static
+    {
+        if ($this->maintenanceJobs->removeElement($maintenanceJob)) {
+            // set the owning side to null (unless already changed)
+            if ($maintenanceJob->getBrand() === $this) {
+                $maintenanceJob->setBrand(null);
+            }
         }
 
         return $this;

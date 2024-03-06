@@ -33,6 +33,15 @@ class MaintenanceJob
     #[ORM\OneToMany(targetEntity: ScheduledMaintenanceJob::class, mappedBy: 'maintenanceJob')]
     private Collection $scheduledMaintenanceJobs;
 
+    #[ORM\ManyToOne(inversedBy: 'maintenanceJobs')]
+    private ?Brand $brand = null;
+
+    #[ORM\ManyToOne(inversedBy: 'maintenanceJobs')]
+    private ?Model $model = null;
+
+    #[ORM\Column]
+    private ?bool $generic = null;
+
     public function __construct()
     {
         $this->spareParts = new ArrayCollection();
@@ -142,6 +151,42 @@ class MaintenanceJob
                 $scheduledMaintenanceJob->setMaintenanceJob(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBrand(): ?Brand
+    {
+        return $this->brand;
+    }
+
+    public function setBrand(?Brand $brand): static
+    {
+        $this->brand = $brand;
+
+        return $this;
+    }
+
+    public function getModel(): ?Model
+    {
+        return $this->model;
+    }
+
+    public function setModel(?Model $model): static
+    {
+        $this->model = $model;
+
+        return $this;
+    }
+
+    public function isGeneric(): ?bool
+    {
+        return $this->generic;
+    }
+
+    public function setGeneric(bool $generic): static
+    {
+        $this->generic = $generic;
 
         return $this;
     }

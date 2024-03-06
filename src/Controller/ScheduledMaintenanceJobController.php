@@ -26,10 +26,12 @@ class ScheduledMaintenanceJobController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $scheduledMaintenanceJob = new ScheduledMaintenanceJob();
-        $form = $this->createForm(ScheduledMaintenanceJobType::class, $scheduledMaintenanceJob);
+        $form = $this->createForm(ScheduledMaintenanceJobType::class, $scheduledMaintenanceJob, ['action' => $this->generateUrl('app_scheduled_maintenance_job_new')]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
             $entityManager->persist($scheduledMaintenanceJob);
             $entityManager->flush();
 

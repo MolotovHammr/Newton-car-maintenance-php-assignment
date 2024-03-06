@@ -1,22 +1,61 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}ScheduledMaintenanceJob{% endblock %}
+{% block title %}Job
+	{{ scheduled_maintenance_job.car.getCarFullName }}
+{% endblock %}
 
 {% block body %}
-    <h1>ScheduledMaintenanceJob</h1>
+	<a href="{{ path('app_scheduled_maintenance_job_index') }}">back to list</a>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ scheduled_maintenance_job.id }}</td>
-            </tr>
-        </tbody>
-    </table>
 
-    <a href="{{ path('app_scheduled_maintenance_job_index') }}">back to list</a>
+	<h1>Scheduled Maintenance Job</h1>
 
-    <a href="{{ path('app_scheduled_maintenance_job_edit', {'id': scheduled_maintenance_job.id}) }}">edit</a>
+	<table class="table">
+		<tbody>
+			<tr>
+				<th>Id</th>
+				<td>{{ scheduled_maintenance_job.id }}</td>
+			</tr>
+			<tr>
+				<th>Car info</th>
+				<td>{{ scheduled_maintenance_job.car.getCarFullName }}</td>
+			</tr>
+			<tr>
+				<th>Customer</th>
+				<td>{{ scheduled_maintenance_job.car.customer.name  }}</td>
+			</tr>
+			<tr>
+				<th>Maintenance job</th>
+				<td>
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Id</th>
+								<th>Name</th>
+								<th>Hours</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>{{ scheduled_maintenance_job.maintenanceJob.id }}</td>
+								<td>{{ scheduled_maintenance_job.maintenanceJob.name }}</td>
+								<td>{{ scheduled_maintenance_job.maintenanceJob.hours }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<th>Spareparts</th>
+				<td>
+					{% for sparePart in scheduled_maintenance_job.maintenanceJob.spareParts  %}
+						{{ sparePart.name }}
+					{% else %}
+						No spare parts
+					{% endfor %}
+				</td>
+			</tr>
+		</tbody>
+	</table>
 
-    {{ include('scheduled_maintenance_job/_delete_form.html.twig') }}
 {% endblock %}
