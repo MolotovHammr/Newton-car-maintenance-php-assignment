@@ -1,37 +1,125 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, { attr: { id: 'form_form' } }) }}
+{{ form_row(form.car) }}
+{{ form_row(form.maintenanceJob) }}
+{{ form_row(form.timeSlot) }}
+{% if form.maintenanceJob.vars.data == null %}
+  <div id="priceTable">Select car and maintenance job first</div>
+{% else %}
+  <div id="priceTable">
+  <table>
+    <div>Maintenance job cost</div>
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Name</th>
+          <th>Hours</th>
+          <th>Rate</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr>
+            <td>{{ form.maintenanceJob.vars.data.id }}</td>
+            <td>{{ form.maintenanceJob.vars.data.name }}</td>
+            <td>{{ form.maintenanceJob.vars.data.hours }}</td>
+            {% if form.timeSlot.vars.data == 'Weekdays' %}
+              <td>€{{ form.maintenanceJob.vars.data.weekdayRate }} p/h</td>
+              <td>€{{ form.maintenanceJob.vars.data.weekdayRate * form.maintenanceJob.vars.data.hours  }}</td>
+            {% elseif form.timeSlot.vars.data == 'Weekends' %}
+              <td>€{{ form.maintenanceJob.vars.data.weekendRate }} p/h</td>
+              <td>€{{ form.maintenanceJob.vars.data.weekendRate * form.maintenanceJob.vars.data.hours  }}</td>
+            {% else %}
+              <td>Select Time slot</td>
+              <td>Select Time slot</td>
+              
+            {% endif %}
+          </tr>
+      </tbody>
+    </table>
+    <table>
+    <div>Spare Parts</div>
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Name</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sparePart in form.maintenanceJob.vars.data.spareParts %}
+          <tr>
+            <td>{{ sparePart.id }}</td>
+            <td>{{ sparePart.name }}</td>
+            <td>€{{ sparePart.price }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="3">No spare parts found</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>  
+  </div>
+{% endif %}
+{{ form_rest(form) }}
+
 {{ form_end(form) }}
 
-
 {% block javascripts %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const carSelectEl = document.getElementById('scheduled_maintenance_job_car');
-
-            carSelectEl.addEventListener('change', function(e) {
-                const formEl = carSelectEl.closest('form');
-
-                fetch(formEl.action, {
-                    method: formEl.method,
-                    body: new FormData(formEl)
-                })
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const newMaintenanceJobFormFieldEl = doc.getElementById('scheduled_maintenance_job_maintenanceJob');
-
-                    newMaintenanceJobFormFieldEl.addEventListener('change', function(e) {
-                        e.target.classList.remove('is-invalid');
-                    });
-
-                    document.getElementById('scheduled_maintenance_job_maintenanceJob').replaceWith(newMaintenanceJobFormFieldEl);
-                })
-                .catch(function (err) {
-                    console.warn('Something went wrong.', err);
-                });
-            });
-        });
-    </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const maintenanceJobSelectEl = document.getElementById('scheduled_maintenance_job_maintenanceJob')
+      const carSelectEl = document.getElementById('scheduled_maintenance_job_car')
+      const timeSlotSelectEl = document.getElementById('scheduled_maintenance_job_timeSlot')
+    
+      const formContainer = document.getElementById('form_form')
+    
+      // Attach event listener to the parent element
+      formContainer.addEventListener('change', function (event) {
+        const targetId = event.target.id
+    
+        // Check which element triggered the event
+        if (targetId === 'scheduled_maintenance_job_car') {
+          // Handle change on 'scheduled_maintenance_job_car' element
+          updateForm()
+        } else if (targetId === 'scheduled_maintenance_job_maintenanceJob') {
+          // Handle change on 'scheduled_maintenance_job_maintenanceJob' element
+          updateForm()
+        } else if (targetId === 'scheduled_maintenance_job_timeSlot') {
+          // Handle change on 'scheduled_maintenance_job_timeSlot' element
+          updateForm()
+        }
+      })
+    
+      function updateForm() {
+        const formEl = document.querySelector('form')
+    
+        fetch(formEl.action, {
+          method: formEl.method,
+          body: new FormData(formEl)
+        })
+          .then((response) => response.text())
+          .then((html) => {
+            const parser = new DOMParser()
+            const doc = parser.parseFromString(html, 'text/html')
+    
+            console.log('doc', doc)
+    
+            const newMaintenanceJobFormFieldEl = doc.getElementById('scheduled_maintenance_job_maintenanceJob')
+            const newCarFormFieldEl = doc.getElementById('scheduled_maintenance_job_car')
+            const newTimeSlotFormFieldEl = doc.getElementById('scheduled_maintenance_job_timeSlot') 
+            const priceTable = doc.getElementById('priceTable')
+    
+            document.getElementById('scheduled_maintenance_job_maintenanceJob').replaceWith(newMaintenanceJobFormFieldEl)
+            document.getElementById('scheduled_maintenance_job_car').replaceWith(newCarFormFieldEl)
+            document.getElementById('scheduled_maintenance_job_timeSlot').replaceWith(newTimeSlotFormFieldEl)
+            document.getElementById('priceTable').replaceWith(priceTable)
+            return
+          })
+          .catch(function (err) {
+            console.warn('Something went wrong.', err)
+          })
+      }
+    })
+  </script>
 {% endblock %}

@@ -24,6 +24,12 @@ class ScheduledMaintenanceJob
     #[ORM\ManyToOne(inversedBy: 'scheduledMaintenanceJobs')]
     private ?Car $car = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $timeSlot = null;
+
+    #[ORM\Column]
+    private ?float $totalPrice = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -49,6 +55,30 @@ class ScheduledMaintenanceJob
     public function setCar(?Car $car): static
     {
         $this->car = $car;
+
+        return $this;
+    }
+
+    public function getTimeSlot(): ?string
+    {
+        return $this->timeSlot;
+    }
+
+    public function setTimeSlot(string $timeSlot): static
+    {
+        $this->timeSlot = $timeSlot;
+
+        return $this;
+    }
+
+    public function getTotalPrice(): ?float
+    {
+        return $this->totalPrice;
+    }
+
+    public function setTotalPrice(float $totalPrice): static
+    {
+        $this->totalPrice = $totalPrice;
 
         return $this;
     }

@@ -45,4 +45,15 @@ class MaintenanceJobRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findGenericMaintenanceJobs(): array
+    {
+        $qb = $this->createQueryBuilder('m')
+            ->where('m.generic = :val')
+            ->setParameter('val', true)
+            ->getQuery()
+            ->getResult();
+
+        return $qb;
+    }
 }

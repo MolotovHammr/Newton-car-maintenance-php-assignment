@@ -30,7 +30,7 @@ class ScheduledMaintenanceJobController extends AbstractController
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()&& $form->get('scheduleCalculate')->isClicked()) {
 
             $entityManager->persist($scheduledMaintenanceJob);
             $entityManager->flush();
@@ -39,7 +39,6 @@ class ScheduledMaintenanceJobController extends AbstractController
         }
 
         return $this->render('scheduled_maintenance_job/new.html.twig', [
-            'scheduled_maintenance_job' => $scheduledMaintenanceJob,
             'form' => $form,
         ]);
     }
