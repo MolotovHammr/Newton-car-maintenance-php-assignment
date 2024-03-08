@@ -22,13 +22,23 @@ class ScheduledMaintenanceJob
     private ?MaintenanceJob $maintenanceJob = null;
 
     #[ORM\ManyToOne(inversedBy: 'scheduledMaintenanceJobs')]
+    #[Assert\NotBlank]
     private ?Car $car = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+
     private ?string $timeSlot = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank]
     private ?float $totalPrice = null;
+
+    #[ORM\Column]
+    private ?float $basePrice = null;
+
+    #[ORM\Column]
+    private ?float $vatPrice = null;
 
     public function getId(): ?int
     {
@@ -79,6 +89,30 @@ class ScheduledMaintenanceJob
     public function setTotalPrice(float $totalPrice): static
     {
         $this->totalPrice = $totalPrice;
+
+        return $this;
+    }
+
+    public function getBasePrice(): ?float
+    {
+        return $this->basePrice;
+    }
+
+    public function setBasePrice(float $basePrice): static
+    {
+        $this->basePrice = $basePrice;
+
+        return $this;
+    }
+
+    public function getVatPrice(): ?float
+    {
+        return $this->vatPrice;
+    }
+
+    public function setVatPrice(float $vatPrice): static
+    {
+        $this->vatPrice = $vatPrice;
 
         return $this;
     }

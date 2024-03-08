@@ -1,61 +1,93 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Job
-	{{ scheduled_maintenance_job.car.getCarFullName }}
+{% block title %}
+  Job
+  {{ scheduled_maintenance_job.car.getCarFullName }}
 {% endblock %}
 
 {% block body %}
-	<a href="{{ path('app_scheduled_maintenance_job_index') }}">back to list</a>
+  <a href="{{ path('app_scheduled_maintenance_job_index') }}">back to list</a>
 
+  <h1>Scheduled Maintenance Job</h1>
 
-	<h1>Scheduled Maintenance Job</h1>
-
-	<table class="table">
-		<tbody>
-			<tr>
-				<th>Id</th>
-				<td>{{ scheduled_maintenance_job.id }}</td>
-			</tr>
-			<tr>
-				<th>Car info</th>
-				<td>{{ scheduled_maintenance_job.car.getCarFullName }}</td>
-			</tr>
-			<tr>
-				<th>Customer</th>
-				<td>{{ scheduled_maintenance_job.car.customer.name  }}</td>
-			</tr>
-			<tr>
-				<th>Maintenance job</th>
-				<td>
-					<table class="table">
-						<thead>
-							<tr>
-								<th>Id</th>
-								<th>Name</th>
-								<th>Hours</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>{{ scheduled_maintenance_job.maintenanceJob.id }}</td>
-								<td>{{ scheduled_maintenance_job.maintenanceJob.name }}</td>
-								<td>{{ scheduled_maintenance_job.maintenanceJob.hours }}</td>
-							</tr>
-						</tbody>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<th>Spareparts</th>
-				<td>
-					{% for sparePart in scheduled_maintenance_job.maintenanceJob.spareParts  %}
-						{{ sparePart.name }}
-					{% else %}
-						No spare parts
-					{% endfor %}
-				</td>
-			</tr>
-		</tbody>
-	</table>
-
+  <table class="table">
+    <tbody>
+      <tr>
+        <th>Id</th>
+        <td>{{ scheduled_maintenance_job.id }}</td>
+      </tr>
+      <tr>
+        <th>Car info</th>
+        <td>{{ scheduled_maintenance_job.car.getCarFullName }}</td>
+      </tr>
+      <tr>
+        <th>Customer</th>
+        <td>{{ scheduled_maintenance_job.car.customer.name }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <b>Maintenance Job</b>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Hours</th>
+        <th>Rate</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ scheduled_maintenance_job.maintenanceJob.id }}</td>
+        <td>{{ scheduled_maintenance_job.maintenanceJob.name }}</td>
+        <td>{{ scheduled_maintenance_job.maintenanceJob.hours }}</td>
+        {% if scheduled_maintenance_job.timeSlot == 'Weekdays' %}
+          <td>{{ scheduled_maintenance_job.maintenanceJob.weekdayRate }}</td>
+        {% else %}
+          <td>{{ scheduled_maintenance_job.maintenanceJob.weekendRate }}</td>
+        {% endif %}
+        <td>{{ scheduled_maintenance_job.maintenanceJob.weekdayRate * scheduled_maintenance_job.maintenanceJob.hours }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <b>Spare parts</b>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sparePart in scheduled_maintenance_job.maintenanceJob.spareParts %}
+        <tr>
+          <td>{{ sparePart.id }}</td>
+          <td>{{ sparePart.name }}</td>
+          <td class="sparePartsPrice">€{{ sparePart.price }}</td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="3">No spare parts found</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <table class="table">
+      <tbody>
+        <tr>
+          <th>Base price</th>
+          <td>€ {{ scheduled_maintenance_job.basePrice }}</td>
+        </tr>
+        <tr>
+          <th>VAT price (21%)</th>
+          <td>€ {{ scheduled_maintenance_job.vatPrice }}</td>
+        </tr>
+        <tr>
+          <th>Total price</th>
+          <td>€ {{ scheduled_maintenance_job.totalPrice}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </table>
 {% endblock %}

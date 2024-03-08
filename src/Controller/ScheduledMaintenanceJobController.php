@@ -35,7 +35,7 @@ class ScheduledMaintenanceJobController extends AbstractController
             $entityManager->persist($scheduledMaintenanceJob);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_scheduled_maintenance_job_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_scheduled_maintenance_job_index',);
         }
 
         return $this->render('scheduled_maintenance_job/new.html.twig', [

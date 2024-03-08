@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\ScheduledMaintenanceJob;
 use App\Repository\MaintenanceJobRepository;
-use Doctrine\DBAL\Types\FloatType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -18,7 +17,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 
 class ScheduledMaintenanceJobType extends AbstractType
@@ -40,23 +39,45 @@ class ScheduledMaintenanceJobType extends AbstractType
                 },
                 'placeholder' => 'Select a customers\' car',
             ])
-            ->add('timeSlot', ChoiceType::class, [
-                'label' => 'Time Slot',
-                'choices' => ['Weekdays' => 'Weekdays', 'Weekends' => 'Weekends'],
-                'placeholder' => 'Choose a time slot!',
-            ])
             ->add('maintenanceJob', EntityType::class, [
                 'class' => MaintenanceJob::class,
                 'choices' => [],
                 'choice_label' => 'name',
                 'placeholder' => 'Choose a car first!',
             ])
-            ->add('totalPrice', MoneyType::class, [
-                'label' => 'Total Price',
-                'scale' => 2,
-                'disabled' => true,
-                'required' => false,
+            ->add('timeSlot', ChoiceType::class, [
+                'label' => 'Time Slot',
+                'choices' => ['Weekdays' => 'Weekdays', 'Weekends' => 'Weekends'],
+                'placeholder' => 'Choose a time slot!',
             ])
+            ->add('basePrice', NumberType::class, [
+                'label' => 'base Price (without VAT)',
+                'scale' => 2,
+                'attr' => [
+                    'readonly' => true,
+                ],
+                'required' => true,
+
+            ])
+            ->add('vatPrice', NumberType::class, [
+                'label' => 'VAT Price (21%)',
+                'scale' => 2,
+                'attr' => [
+                    'readonly' => true,
+                ],
+                'required' => true,
+
+            ])
+            ->add('totalPrice', NumberType::class, [
+                'label' => 'Total Price (with VAT)',
+                'scale' => 2,
+                'attr' => [
+                    'readonly' => true,
+                ],
+                'required' => true,
+
+            ])
+
             ->add('scheduleCalculate', SubmitType::class, array(
                 'label' => 'Schedule Job!',
             ));
@@ -75,10 +96,23 @@ class ScheduledMaintenanceJobType extends AbstractType
                 ]);
                 return;
             }
+
+        
             $form->add('maintenanceJob', EntityType::class, [
                 'class' => MaintenanceJob::class,
                 'choices' => $availableMaintenanceJobs,
-                'choice_label' => 'name',
+                'choice_label' => function (MaintenanceJob $availableMaintenanceJob) {
+
+                    if ($availableMaintenanceJob->getBrand()) {
+                        return $availableMaintenanceJob->getName() . ' (Brand)';
+                    }
+                    if ($availableMaintenanceJob->getModel()) {
+                        return $availableMaintenanceJob->getName() . ' (Model)';
+                    }
+                    if ($availableMaintenanceJob->isGeneric()) {
+                        return $availableMaintenanceJob->getName() . ' (Generic)';
+                    }
+                },
                 'placeholder' => 'Choose a maintenance job',
             ]);
         };
@@ -97,24 +131,7 @@ class ScheduledMaintenanceJobType extends AbstractType
             return;
         };
 
-        $formModifierTimeSlotSelect = function (FormInterface $form, mixed $timeSlot = null) {
-            if (null === $timeSlot) {
-                return;
-            }
-            if (null !== $timeSlot->getCar())  {
-                dd($timeSlot);
-            }
-            $form->add('timeSlot', ChoiceType::class, [
-                'label' => 'Time Slot',
-                'choices' => ['Weekdays' => 'Weekdays', 'Weekends' => 'Weekends'],
-                'placeholder' => 'Choose a time slot!',
-            ]);
-
-            //$this->calculateTotalPrice($maintenanceJob, $timeSlot);
-        };
-
         //Event listeners Car 
-
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($formModifierCarSelect) {
             $data = $event->getData();
 
@@ -133,7 +150,6 @@ class ScheduledMaintenanceJobType extends AbstractType
         );
 
         //Eevent listeners Maintenance Job
-
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($formModifierMaintenanceJobSelect) {
             $data = $event->getData();
 
@@ -149,32 +165,7 @@ class ScheduledMaintenanceJobType extends AbstractType
             }
         );
 
-        //Event listeners timeSlot
-
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($formModifierTimeSlotSelect) {
-            $data = $event->getData();
-
-            $formModifierTimeSlotSelect($event->getForm(), $data->getTimeSlot());
-        });
-
-        $builder->get('timeSlot')->addEventListener(
-            FormEvents::POST_SUBMIT,
-            function (FormEvent $event) use ($formModifierTimeSlotSelect) {
-                $timeSlot = $event->getForm()->getData();
-
-                $formModifierTimeSlotSelect($event->getForm()->getParent(), $timeSlot);
-            }
-        );
-
         $builder->setAction($options['action']);
-    }
-
-    public function calculateTotalPrice(MaintenanceJob $maintenanceJob, string $timeSlot): float
-    {
-        dd($maintenanceJob, $timeSlot);
-        $totalPrice += $availableMaintenanceJob->getWeekdayRate();
-
-        return $totalPrice;
     }
 
     public function getAvailableMaintenanceJobs(Car $car): Collection

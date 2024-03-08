@@ -5,3 +5,34 @@ config:
   webroot: public
   via: apache
   database: mysql
+
+services:
+  appserver:
+    build_as_root:
+      - 'composer install'
+      - 'php bin/console doctrine:migrations:migrate'
+    run:
+      - 'php bin/console server:run'
+  database:
+    portforward: true
+    creds:
+      database: newton_car_maintenance
+      user: newton_car_maintenance
+      password: newton_car_maintenance
+
+  externalSparePartApi:
+    location: /externalSparePartApi
+    build_as_root:
+      - 'composer install'
+      - 'php bin/console doctrine:migrations:migrate'
+    run:
+      - 'php bin/console server:run'
+    proxy:
+      - spare-part-api.lndo.site
+  
+  externalSparePartApiDatabase:
+    portforward: true
+    creds:
+      database: external_spare_part_api
+      user: external_spare_part_api
+      password: external_spare_part_api

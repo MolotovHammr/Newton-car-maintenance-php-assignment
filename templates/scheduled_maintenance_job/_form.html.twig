@@ -6,8 +6,8 @@
   <div id="priceTable">Select car and maintenance job first</div>
 {% else %}
   <div id="priceTable">
-  <table>
-    <div>Maintenance job cost</div>
+    <table>
+      <div>Maintenance job cost</div>
       <thead>
         <tr>
           <th>Id</th>
@@ -18,26 +18,25 @@
         </tr>
       </thead>
       <tbody>
-          <tr>
-            <td>{{ form.maintenanceJob.vars.data.id }}</td>
-            <td>{{ form.maintenanceJob.vars.data.name }}</td>
-            <td>{{ form.maintenanceJob.vars.data.hours }}</td>
-            {% if form.timeSlot.vars.data == 'Weekdays' %}
-              <td>€{{ form.maintenanceJob.vars.data.weekdayRate }} p/h</td>
-              <td>€{{ form.maintenanceJob.vars.data.weekdayRate * form.maintenanceJob.vars.data.hours  }}</td>
-            {% elseif form.timeSlot.vars.data == 'Weekends' %}
-              <td>€{{ form.maintenanceJob.vars.data.weekendRate }} p/h</td>
-              <td>€{{ form.maintenanceJob.vars.data.weekendRate * form.maintenanceJob.vars.data.hours  }}</td>
-            {% else %}
-              <td>Select Time slot</td>
-              <td>Select Time slot</td>
-              
-            {% endif %}
-          </tr>
+        <tr>
+          <td>{{ form.maintenanceJob.vars.data.id }}</td>
+          <td>{{ form.maintenanceJob.vars.data.name }}</td>
+          <td>{{ form.maintenanceJob.vars.data.hours }}</td>
+          {% if form.timeSlot.vars.data == 'Weekdays' %}
+            <td>€ {{ form.maintenanceJob.vars.data.weekdayRate }} p/h</td>
+            <td id="maintenanceJobPrice">€ {{ form.maintenanceJob.vars.data.weekdayRate * form.maintenanceJob.vars.data.hours }}</td>
+          {% elseif form.timeSlot.vars.data == 'Weekends' %}
+            <td>€ {{ form.maintenanceJob.vars.data.weekendRate }} p/h</td>
+            <td id="maintenanceJobPrice">€ {{ form.maintenanceJob.vars.data.weekendRate * form.maintenanceJob.vars.data.hours }}</td>
+          {% else %}
+            <td>Select Time slot</td>
+            <td>Select Time slot</td>
+          {% endif %}
+        </tr>
       </tbody>
     </table>
     <table>
-    <div>Spare Parts</div>
+      <div>Spare Parts</div>
       <thead>
         <tr>
           <th>Id</th>
@@ -50,15 +49,15 @@
           <tr>
             <td>{{ sparePart.id }}</td>
             <td>{{ sparePart.name }}</td>
-            <td>€{{ sparePart.price }}</td>
+            <td class="sparePartsPrice">€{{ sparePart.price }}</td>
           </tr>
-          {% else %}
+        {% else %}
           <tr>
             <td colspan="3">No spare parts found</td>
           </tr>
         {% endfor %}
       </tbody>
-    </table>  
+    </table>
   </div>
 {% endif %}
 {{ form_rest(form) }}
@@ -103,22 +102,42 @@
             const parser = new DOMParser()
             const doc = parser.parseFromString(html, 'text/html')
     
-            console.log('doc', doc)
-    
             const newMaintenanceJobFormFieldEl = doc.getElementById('scheduled_maintenance_job_maintenanceJob')
             const newCarFormFieldEl = doc.getElementById('scheduled_maintenance_job_car')
-            const newTimeSlotFormFieldEl = doc.getElementById('scheduled_maintenance_job_timeSlot') 
+            const newTimeSlotFormFieldEl = doc.getElementById('scheduled_maintenance_job_timeSlot')
             const priceTable = doc.getElementById('priceTable')
     
             document.getElementById('scheduled_maintenance_job_maintenanceJob').replaceWith(newMaintenanceJobFormFieldEl)
             document.getElementById('scheduled_maintenance_job_car').replaceWith(newCarFormFieldEl)
             document.getElementById('scheduled_maintenance_job_timeSlot').replaceWith(newTimeSlotFormFieldEl)
             document.getElementById('priceTable').replaceWith(priceTable)
+    
+            //Calculate price and update scheduled_maintenance_job_totalPrice input field
+            calculatePriceValues()
+    
             return
           })
           .catch(function (err) {
             console.warn('Something went wrong.', err)
           })
+      }
+    
+      //Calculate price and update scheduled_maintenance_job price input fields
+      function calculatePriceValues() {
+        const maintenanceJobPrice = document.getElementById('maintenanceJobPrice').innerText
+        const sparePartsPrice = document.getElementsByClassName('sparePartsPrice')
+        let basePrice = 0
+        for (let i = 0; i < sparePartsPrice.length; i++) {
+          basePrice += parseFloat(sparePartsPrice[i].innerText.split('€')[1])
+        }
+        basePrice += parseFloat(maintenanceJobPrice.split('€')[1])
+        document.getElementById('scheduled_maintenance_job_basePrice').value = basePrice
+    
+        let totalPrice = basePrice * 1.21
+        let vatPrice = basePrice * 0.21
+    
+        document.getElementById('scheduled_maintenance_job_vatPrice').value = vatPrice.toFixed(2)
+        document.getElementById('scheduled_maintenance_job_totalPrice').value = totalPrice.toFixed(2)
       }
     })
   </script>
