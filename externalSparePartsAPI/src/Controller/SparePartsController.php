@@ -33,9 +33,7 @@ class SparePartsController extends AbstractController
             // edit the price slightly
             $priceChangeFactor = mt_rand(0, 1) + lcg_value();
 
-            var_dump($priceChangeFactor);
             $sparePart->setPrice($sparePart->getPrice() * $priceChangeFactor);
-
         }
 
         // Return the spare parts as JSON response

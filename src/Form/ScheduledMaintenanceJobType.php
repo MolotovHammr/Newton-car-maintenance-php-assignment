@@ -88,8 +88,6 @@ class ScheduledMaintenanceJobType extends AbstractType
         $formModifierCarSelect = function (FormInterface $form, Car $car = null) {
             $availableMaintenanceJobs = $car === null ? [] : $this->getAvailableMaintenanceJobs($car);
 
-            //dd($availableMaintenanceJobs);
-
             if (empty($availableMaintenanceJobs)) {
                 $form->add('maintenanceJob', EntityType::class, [
                     'class' => MaintenanceJob::class,
@@ -140,7 +138,6 @@ class ScheduledMaintenanceJobType extends AbstractType
             function (FormEvent $event) use ($formModifierCarSelect) {
 
                 $car = $event->getForm()->getData();
-                var_dump('test');
 
                 $formModifierCarSelect($event->getForm()->getParent(), $car);
             }
@@ -153,7 +150,6 @@ class ScheduledMaintenanceJobType extends AbstractType
                 $maintenanceJob = $event->getForm()->getData();
 
                 $this->getSparePartsFromAPI($maintenanceJob);
-                var_dump($maintenanceJob->getSpareParts());
 
                 $formModifierMaintenanceJobSelect($event->getForm()->getParent(), $maintenanceJob);
             }

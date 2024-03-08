@@ -26,7 +26,7 @@
           <td>{{ scheduled_maintenance_job.car.getCarFullName }}</td>
           <td>{{ scheduled_maintenance_job.car.model.year }}</td>
           <td>{{ scheduled_maintenance_job.maintenanceJob.name }}</td>
-          <td>{{ scheduled_maintenance_job.totalPrice }}</td>
+          <td>€ {{ scheduled_maintenance_job.totalPrice }}</td>
           <td>
             <a href="{{ path('app_scheduled_maintenance_job_show', { id: scheduled_maintenance_job.id }) }}">show</a>
           </td>
