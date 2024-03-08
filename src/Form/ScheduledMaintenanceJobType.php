@@ -200,7 +200,6 @@ class ScheduledMaintenanceJobType extends AbstractType
         //get all spare part ids from maintenance job
         $sparePartIds = [];
 
-
         foreach ($maintenanceJob->getSpareParts() as $sparePart) {
             $sparePartIds[] = $sparePart->getId();
         }

@@ -45,3 +45,16 @@ services:
       user: external_spare_part_api
       password: external_spare_part_api
 
+tooling:
+  console-main:
+    service: appserver-main
+    description: Run Symfony console commands
+    cmd: 'php bin/console'
+
+  console-external-spare-part-api:
+    service: external-spare-part-api
+    description: Run Symfony console commands
+    cmd: 'php bin/console'
+
+
+
