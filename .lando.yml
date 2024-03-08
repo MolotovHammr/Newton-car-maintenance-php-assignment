@@ -1,38 +1,47 @@
 name: newton-car-maintenance-php-assignment
-recipe: symfony
+recipe: lamp
 config:
   php: '8.2'
-  webroot: public
-  via: apache
-  database: mysql
+
+
+proxy:
+  # Set Magento URL
+  appserver-main:
+    - newton-car-maintenance.lndo.site
+  external-spare-part-api:
+    - external-spare-part-api.lndo.site 
 
 services:
-  appserver:
+  appserver-main:
+    type: php:8.2
+    webroot: public
+    via: apache
     build_as_root:
       - 'composer install'
       - 'php bin/console doctrine:migrations:migrate'
-    run:
-      - 'php bin/console server:run'
-  database:
+
+  database-main:
+    type: mysql:5.7 
     portforward: true
     creds:
       database: newton_car_maintenance
       user: newton_car_maintenance
       password: newton_car_maintenance
 
-  externalSparePartApi:
-    location: /externalSparePartApi
+  external-spare-part-api:
+    type: php:8.2
+    webroot: externalSparePartsAPI/public
+    via: apache
     build_as_root:
       - 'composer install'
       - 'php bin/console doctrine:migrations:migrate'
-    run:
-      - 'php bin/console server:run'
-    proxy:
-      - spare-part-api.lndo.site
+
   
-  externalSparePartApiDatabase:
+  external-spare-part-api-database:
+    type: mysql:5.7 
     portforward: true
     creds:
       database: external_spare_part_api
       user: external_spare_part_api
       password: external_spare_part_api
+

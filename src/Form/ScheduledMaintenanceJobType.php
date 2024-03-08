@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\ScheduledMaintenanceJob;
 use App\Repository\MaintenanceJobRepository;
+use App\Service\SparePartsApiService;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -23,10 +24,12 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 class ScheduledMaintenanceJobType extends AbstractType
 {
     private $maintenanceJobRepository;
+    private $sparePartsApiService;
 
-    public function __construct(MaintenanceJobRepository $maintenanceJobRepository)
+    public function __construct(MaintenanceJobRepository $maintenanceJobRepository, SparePartsApiService $sparePartsApiService)
     {
         $this->maintenanceJobRepository = $maintenanceJobRepository;
+        $this->sparePartsApiService = $sparePartsApiService;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -97,7 +100,6 @@ class ScheduledMaintenanceJobType extends AbstractType
                 return;
             }
 
-        
             $form->add('maintenanceJob', EntityType::class, [
                 'class' => MaintenanceJob::class,
                 'choices' => $availableMaintenanceJobs,
@@ -121,6 +123,7 @@ class ScheduledMaintenanceJobType extends AbstractType
             if (null === $maintenanceJob) {
                 return;
             }
+
             $form->add('maintenanceJob', EntityType::class, [
                 'class' => MaintenanceJob::class,
                 'selected' => $maintenanceJob,
@@ -132,34 +135,25 @@ class ScheduledMaintenanceJobType extends AbstractType
         };
 
         //Event listeners Car 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($formModifierCarSelect) {
-            $data = $event->getData();
-
-            $formModifierCarSelect($event->getForm(), $data->getCar());
-        });
-
-
         $builder->get('car')->addEventListener(
             FormEvents::POST_SUBMIT,
             function (FormEvent $event) use ($formModifierCarSelect) {
 
                 $car = $event->getForm()->getData();
+                var_dump('test');
 
                 $formModifierCarSelect($event->getForm()->getParent(), $car);
             }
         );
 
-        //Eevent listeners Maintenance Job
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($formModifierMaintenanceJobSelect) {
-            $data = $event->getData();
-
-            $formModifierMaintenanceJobSelect($event->getForm(), $data->getMaintenanceJob());
-        });
-
         $builder->get('maintenanceJob')->addEventListener(
             FormEvents::POST_SUBMIT,
             function (FormEvent $event) use ($formModifierMaintenanceJobSelect) {
+
                 $maintenanceJob = $event->getForm()->getData();
+
+                $this->getSparePartsFromAPI($maintenanceJob);
+                var_dump($maintenanceJob->getSpareParts());
 
                 $formModifierMaintenanceJobSelect($event->getForm()->getParent(), $maintenanceJob);
             }
@@ -193,15 +187,25 @@ class ScheduledMaintenanceJobType extends AbstractType
 
         $genericJobs = $maintenanceJobRepository->findGenericMaintenanceJobs();
 
-        //dd($brandJobs->toArray(), $modelJobs->toArray(), $genericJobs);
 
         foreach ($genericJobs as $genericJob) {
             $availableMaintenanceJobs->add($genericJob);
         }
 
-        //dd($availableMaintenanceJobs);
-
         return $availableMaintenanceJobs;
+    }
+
+    public function getSparePartsFromAPI(MaintenanceJob $maintenanceJob): array
+    {
+        //get all spare part ids from maintenance job
+        $sparePartIds = [];
+
+
+        foreach ($maintenanceJob->getSpareParts() as $sparePart) {
+            $sparePartIds[] = $sparePart->getId();
+        }
+
+        return $this->sparePartsApiService->getSpareParts($sparePartIds);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
