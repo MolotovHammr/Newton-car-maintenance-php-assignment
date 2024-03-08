@@ -24,6 +24,8 @@ Newton Car maintenance PHP assignment for iO campus Eindhoven job application
 
 To challenge myself, I choose to do this project in Symfony, which I had previously not worked in to also challenge myself in the aspect of learning a framework as much as possible in a short time.
 The assigment is 95% complete, the real time connection of dynamics spare parts prices was not completed, but both Symfony project work as intended.
+
+
   
 
 
